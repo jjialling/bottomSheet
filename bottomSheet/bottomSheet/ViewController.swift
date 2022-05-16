@@ -13,7 +13,6 @@ class ViewController: UIViewController{
     
     let screenWidth = UIScreen.main.bounds.width
    
-    
     var scrollView:UIScrollView = {
         let sv = UIScrollView.init(frame: .zero)
         sv.contentInsetAdjustmentBehavior = .never
@@ -29,22 +28,17 @@ class ViewController: UIViewController{
         let txt = UILabel()
         txt.text = "比方以下的例子，scroll view 本身的大小只能容納一張圖片，但它可以水平捲動，往左捲動後能看到右邊的圖片，關鍵正來自它的 content size。它的 content size 的寬度等於三張圖片加起來的寬度，所以可以容納三張圖。因此 scroll view 要能捲動有個重要的條件，它的 content size 必須大於 frame 大小，如此它才會覺得可以捲動。當 content size 的寬度大於 frame 的寬度時將可左右捲動，當 content size 的高度大於 frame 的高度時則可上下捲動。比方以下的例子，scroll view 本身的大小只能容納一張圖片，但它可以水平捲動，往左捲動後能看到右邊的圖片，關鍵正來自它的 content size。它的 content size 的寬度等於三張圖片加起來的寬度，所以可以容納三張圖。因此 scroll view 要能捲動有個重要的條件，它的 content size 必須大於 frame 大小，如此它才會覺得可以捲動。當 content size 的寬度大於 frame 的寬度時將可左右捲動，當 content size 的高度大於 frame 的高度時則可上下捲動。比方以下的例子，scroll view 本身的大小只能容納一張圖片，但它可以水平捲動，往左捲動後能看到右邊的圖片，關鍵正來自它的 content size。它的 content size 的寬度等於三張圖片加起來的寬度，所以可以容納三張圖。因此 scroll view 要能捲動有個重要的條件，它的 content size 必須大於 frame 大小，如此它才會覺得可以捲動。當 content size 的寬度大於 frame 的寬度時將可左右捲動，當 content size 的高度大於 frame 的高度時則可上下捲動。比方以下的例子，scroll view 本身的大小只能容納一張圖片，但它可以水平捲動，往左捲動後能看到右邊的圖片，關鍵正來自它的 content size。它的 content size 的寬度等於三張圖片加起來的寬度，所以可以容納三張圖。因此 scroll view 要能捲動有個重要的條件，它的 content size 必須大於 frame 大小，如此它才會覺得可以捲動。當 content size 的寬度大於 frame 的寬度時將可左右捲動，當 content size 的高度大於 frame 的高度時則可上下捲動。比方以下的例子，scroll view 本身的大小只能容納一張圖片，但它可以水平捲動，往左捲動後能看到右邊的圖片，關鍵正來自它的 content size。它的 content size 的寬度等於三張圖片加起來的寬度，所以可以容納三張圖。因此 scroll view 要能捲動有個重要的條件，它的 content size 必須大於 frame 大小，如此它才會覺得可以捲動。當 content size 的寬度大於 frame 的寬度時將可左右捲動，當 content size 的高度大於 frame 的高度時則可上下捲動。"
         txt.numberOfLines = 0
-
-
         return txt
     }()
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-       
-        view.backgroundColor = .white
-       
-        configureScrollView()
+        configureUI()
         addBottomSheet()
-        
     }
-    func configureScrollView()  {
+    
+    func configureUI()  {
+        view.backgroundColor = .white
         scrollView.addSubview(descView)
         descView.addSubview(txt)
     
@@ -52,7 +46,6 @@ class ViewController: UIViewController{
             make.top.equalTo(scrollView).offset(20)
             make.bottom.equalTo(scrollView).offset(-20)
             make.width.equalTo(screenWidth)
-           
         }
         txt.snp.makeConstraints { (make) in
             make.left.right.equalTo(descView)
@@ -60,12 +53,12 @@ class ViewController: UIViewController{
             make.bottom.equalToSuperview() // 底部一定要，不然不能夠確定contentSize。
         }
     }
+    
     func addBottomSheet()  {
-        
         let bottomSheet = myBottomSheetView(contentView:scrollView )
-        bottomSheet.defaultMaximumHeight = 600
+        bottomSheet.defaultMaximumHeight = 200
         bottomSheet.defaultMinimumHeight = 200
-        bottomSheet.displayState = .maxDisplay
+        bottomSheet.displayState = .minDisplay
         bottomSheet.frame = self.view.bounds
         view.addSubview(bottomSheet)
     }
