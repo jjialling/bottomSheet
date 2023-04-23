@@ -13,6 +13,8 @@ class myBottomSheetView: UIView {
     var dismissibleHeight: CGFloat = 250
     var maximumContainerHeight: CGFloat = (UIScreen.main.bounds.height) - 76
     var currentContainerHeight: CGFloat = 290
+    var cornerRadius: CGFloat = 20
+    var bgColor: UIColor = .white
     private var defaultHeight: CGFloat = 290  {
         didSet {
             defaultHeight = currentContainerHeight
@@ -23,7 +25,6 @@ class myBottomSheetView: UIView {
     private var contentView: UIScrollView
     private var targetViewController: UIViewController
     
-    var finish: (() -> Void)?
     
 
     init(contentView: UIScrollView, targetView: UIView, targetViewController: UIViewController) {
@@ -40,8 +41,8 @@ class myBottomSheetView: UIView {
     }
     
     func setupUI() {
-        self.backgroundColor = .white
-        self.layer.cornerRadius = 20
+        self.backgroundColor = bgColor
+        self.layer.cornerRadius = cornerRadius
         self.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         self.addSubview(contentView)
         contentView.snp.makeConstraints { make in
