@@ -8,11 +8,11 @@ https://user-images.githubusercontent.com/68376408/168549234-3e02f917-6f58-464b-
 When presenting myBottomSheetView you can set its Properties about `defaultMaximumHeight`, `defaultMinimumHeight` and `displayState` to show the different states you want
 
 ```swift
-let bottomSheet = myBottomSheetView(contentView:scrollView )
-    bottomSheet.defaultMaximumHeight = 600
-    bottomSheet.defaultMinimumHeight = 200
-    bottomSheet.displayState = .maxDisplay
-    bottomSheet.frame = self.view.bounds
+let bottomSheet = myBottomSheetView(contentView: self.scrollView, targetView: self.view, targetViewController: self)
+    bottomSheet.maximumContainerHeight = 600
+    bottomSheet.currentContainerHeight = 200
+    bottomSheet.cornerRadius = 20
+    bottomSheet.bgColor = .white
     view.addSubview(bottomSheet)
     
 ```
