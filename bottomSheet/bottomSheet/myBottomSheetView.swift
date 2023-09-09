@@ -8,24 +8,52 @@
 import SnapKit
 import UIKit
 
-class myBottomSheetView: UIView {
+public enum myBottomSheetViewMode {
+    case normal
+    case title
+    case customNav
+}
+open class myBottomSheetView: UIView {
+    public var dismissibleHeight: CGFloat = 250
+    public var maximumHeight: CGFloat = (UIScreen.main.bounds.height) - 76
+    public var mininumHeight: CGFloat = 290
+    public var cornerRadius: CGFloat = 20
+    public var bgColor: UIColor = .white
+    public var title: String = "AAA"
+    public var navgationView: UIView?
+    public var dismissCompletion: (() -> Void)?
+    public var bottomSheetViewMode: myBottomSheetViewMode = .normal
     
-    var dismissibleHeight: CGFloat = 250
-    var maximumContainerHeight: CGFloat = (UIScreen.main.bounds.height) - 76
-    var currentContainerHeight: CGFloat = 290
-    var cornerRadius: CGFloat = 20
-    var bgColor: UIColor = .white
-    private var defaultHeight: CGFloat = 290  {
+    fileprivate var defaultHeight: CGFloat = 290  {
         didSet {
-            defaultHeight = currentContainerHeight
+            defaultHeight = mininumHeight
         }
     }
-    private var heightConstraint: Constraint?
-    private var targetView: UIView
-    private var contentView: UIScrollView
-    private var targetViewController: UIViewController
+    fileprivate var heightConstraint: Constraint?
+    fileprivate var targetView: UIView
+    fileprivate var contentView: UIScrollView
+    fileprivate var targetViewController: UIViewController
+ 
+    fileprivate let drugView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemGray4
+        view.layer.cornerRadius = 4
+        view.clipsToBounds = true
+        return view
+    }()
+
+    fileprivate lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = title
+        label.textAlignment = .center
+        return label
+    }()
     
-    
+    fileprivate let lineView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemGray5
+        return view
+    }()
 
     init(contentView: UIScrollView, targetView: UIView, targetViewController: UIViewController) {
         self.contentView = contentView
@@ -39,35 +67,102 @@ class myBottomSheetView: UIView {
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    func present() {
+        UIView.animate(withDuration: 0.25) {
+            self.snp.updateConstraints { make in
+                make.height.equalTo(self.mininumHeight)
+            }
+            self.targetView.layoutIfNeeded()
+        }
+        defaultHeight = mininumHeight
+        self.renewLayout()
+    }
     
-    func setupUI() {
+    fileprivate func renewLayout() {
+        self.backgroundColor = bgColor
+        self.layer.cornerRadius = cornerRadius
+        switch bottomSheetViewMode {
+        case .normal:
+            break
+        case .title:
+            self.addSubview(titleLabel)
+            self.addSubview(lineView)
+            titleLabel.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(35)
+                make.centerX.equalToSuperview()
+                make.height.equalTo(20)
+            }
+            lineView.snp.makeConstraints { make in
+                make.top.equalTo(titleLabel.snp.bottom).offset(10)
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(1)
+            }
+            contentView.snp.updateConstraints { make in
+                make.top.equalToSuperview().offset(76)
+            }
+        case .customNav:
+            self.addSubview(navgationView ?? UIView())
+            self.addSubview(lineView)
+            navgationView?.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(15)
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(49)
+            }
+            lineView.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(65)
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(1)
+            }
+            contentView.snp.updateConstraints { make in
+                make.top.equalToSuperview().offset(76)
+            }
+        }
+       
+    }
+    
+    fileprivate func setupUI() {
         self.backgroundColor = bgColor
         self.layer.cornerRadius = cornerRadius
         self.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+        self.addSubview(drugView)
         self.addSubview(contentView)
+        targetView.addSubview(self)
+       
+        drugView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(10)
+            make.centerX.equalToSuperview()
+            make.height.equalTo(5)
+            make.width.equalTo(50)
+        }
         contentView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(40)
+            make.top.equalToSuperview().offset(25)
             make.leading.equalToSuperview().offset(16)
             make.trailing.equalToSuperview().offset(-16)
             make.bottom.equalToSuperview().priority(999)
         }
+        self.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(0)
+            make.bottom.equalTo(targetView.snp.bottom)
+        }
     }
     
-    func setupPanGesture() {
+    fileprivate func setupPanGesture() {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(gesture:)))
         panGesture.delaysTouchesBegan = false
         panGesture.delaysTouchesEnded = false
         self.addGestureRecognizer(panGesture)
     }
 
-    @objc func handlePanGesture(gesture: UIPanGestureRecognizer) {
+    @objc fileprivate func handlePanGesture(gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: self)
         let isDraggingDown = translation.y > 0
-        let newHeight = currentContainerHeight - translation.y
+        let newHeight = mininumHeight - translation.y
 
         switch gesture.state {
         case .changed:
-            if newHeight < maximumContainerHeight {
+            if newHeight < maximumHeight {
                 self.snp.updateConstraints { make in
                     make.height.equalTo(newHeight)
                 }
@@ -80,35 +175,35 @@ class myBottomSheetView: UIView {
             else if newHeight < defaultHeight {
                 animateContainerHeight(defaultHeight)
             }
-            else if newHeight < maximumContainerHeight && isDraggingDown {
+            else if newHeight < maximumHeight && isDraggingDown {
                 animateContainerHeight(defaultHeight)
             }
             else if newHeight > defaultHeight && !isDraggingDown {
-                animateContainerHeight(maximumContainerHeight)
+                animateContainerHeight(maximumHeight)
             }
         default:
             break
         }
     }
 
-    func animateContainerHeight(_ height: CGFloat) {
+    fileprivate func animateContainerHeight(_ height: CGFloat) {
         UIView.animate(withDuration: 0.25) {
             self.self.snp.updateConstraints { make in
                 make.height.equalTo(height)
             }
             self.targetView.layoutIfNeeded()
         }
-        currentContainerHeight = height
+        mininumHeight = height
     }
 
-    func animateDismissView() {
+    fileprivate func animateDismissView() {
         UIView.animate(withDuration: 0.3) {
             self.snp.updateConstraints { make in
                 make.height.equalTo(0)
             }
             self.targetView.layoutIfNeeded()
         } completion: { _ in
-            self.targetView.backgroundColor = .white
+            self.dismissCompletion?()
         }
     }
 
